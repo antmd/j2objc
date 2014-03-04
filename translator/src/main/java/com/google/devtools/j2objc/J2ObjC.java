@@ -503,8 +503,10 @@ public class J2ObjC {
     starttime = logTime("ComplexExpressionExtractor", starttime);
 
     // Adds nil_chk calls wherever an expression is dereferenced.
-    new NilCheckResolver().run(unit);
-    starttime = logTime("NilCheckResolver", starttime);
+    if (!Options.stripNilChecks()) {
+        new NilCheckResolver().run(unit);
+        starttime = logTime("NilCheckResolver", starttime);
+    }
 
     // Translate core Java type use to similar iOS types
     new JavaToIOSTypeConverter().run(unit);

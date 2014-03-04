@@ -993,7 +993,7 @@ public class StatementGenerator extends ErrorReportingASTVisitor {
       } else {
         buffer.append(", ");
       }
-      boolean hasNilCheck = Types.hasNilCheck(arg);
+      boolean hasNilCheck = !Options.stripNilChecks() && Types.hasNilCheck(arg);
       if (hasNilCheck) {
         buffer.append("nil_chk(");
       }
@@ -1014,7 +1014,7 @@ public class StatementGenerator extends ErrorReportingASTVisitor {
     } else if (receiver != null) {
       needsCastNodes.put(receiver, true);
       boolean castPrinted = false;
-      boolean hasNilCheck = Types.hasNilCheck(receiver);
+      boolean hasNilCheck = !Options.stripNilChecks() && Types.hasNilCheck(receiver);
       if (hasNilCheck) {
         castPrinted = maybePrintCastFromId(receiver);
         needsCastNodes.remove(receiver);

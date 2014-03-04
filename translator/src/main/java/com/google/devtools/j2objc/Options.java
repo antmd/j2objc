@@ -72,6 +72,7 @@ public class Options {
   private static boolean jsniWarnings = true;
   private static boolean buildClosure = false;
   private static boolean stripReflection = false;
+  private static boolean stripNilChecks = false;
   private static boolean extractUnsequencedModifications = false;
 
   private static DeadCodeMap deadCodeMap = null;
@@ -247,6 +248,8 @@ public class Options {
         stripGwtIncompatible = true;
       } else if (arg.equals("--strip-reflection")) {
         stripReflection = true;
+      } else if (arg.equals("--strip-nil-checks")) {
+        stripNilChecks = true;
       } else if (arg.equals("--generate-test-main") || arg.equals("--no-generate-test-main")) {
         // obsolete
       } else if (arg.equals("--segmented-headers")) {
@@ -593,6 +596,10 @@ public class Options {
 
   public static boolean stripGwtIncompatibleMethods() {
     return stripGwtIncompatible;
+  }
+
+  public static boolean stripNilChecks() {
+    return stripNilChecks;
   }
 
   @VisibleForTesting
