@@ -12,11 +12,14 @@
 #     <file.java> ...
 #
 
+# Get the directory this script lives in, accounting for symlinks to the script
 if [ -L "$0" ]; then
-  readonly DIR=$(dirname $(readlink "$0"))
+  pushd "$(dirname $0)/$(dirname $(readlink "$0"))" >/dev/null
 else
-  readonly DIR=$(dirname "$0")
+  pushd $(dirname "$0") >/dev/null
 fi
+readonly DIR=$(pwd)
+popd >/dev/null
 
 if [ -e "${DIR}"/j2objc.jar ]; then
   readonly LIB_DIR="${DIR}"

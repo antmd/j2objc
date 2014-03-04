@@ -22,11 +22,14 @@
 #   j2objcc <clang options> <files>
 #
 
+# Get the directory this script lives in, accounting for symlinks to the script
 if [ -L "$0" ]; then
-  readonly DIR=$(dirname $(readlink "$0"))
+  pushd "$(dirname $0)/$(dirname $(readlink "$0"))" >/dev/null
 else
-  readonly DIR=$(dirname "$0")
+  pushd $(dirname "$0") >/dev/null
 fi
+readonly DIR=$(pwd)
+popd >/dev/null
 
 if [ "x${PUBLIC_HEADERS_FOLDER_PATH}" != "x" ]; then
 	readonly INCLUDE_PATH=${DIR}/${PUBLIC_HEADERS_FOLDER_PATH}
