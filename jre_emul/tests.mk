@@ -24,19 +24,29 @@ include environment.mk
 
 SUPPORT_SOURCES = \
     JSR166TestCase.java \
+    libcore/java/nio/charset/Charset_TestGenerator.java \
+    libcore/java/nio/charset/OldCharset_AbstractTest.java \
     libcore/java/util/ServiceLoaderTestInterface.java \
     org/apache/harmony/logging/tests/java/util/logging/AllTests.java \
     org/apache/harmony/logging/tests/java/util/logging/LevelTestResource.java \
     org/apache/harmony/logging/tests/java/util/logging/util/EnvironmentHelper.java \
-    org/apache/harmony/nio/tests/java/nio/AbstractBufferTest.java \
     org/apache/harmony/testframework/serialization/SerializationTest.java \
     org/apache/harmony/text/tests/java/text/Support_Format.java \
     org/apache/harmony/text/tests/java/text/Support_MessageFormat.java \
     tests/security/MessageDigestTest.java \
+    tests/support/Support_ASimpleInputStream.java \
+    tests/support/Support_ASimpleOutputStream.java \
+    tests/support/Support_ASimpleReader.java \
+    tests/support/Support_ASimpleWriter.java \
     tests/support/Support_CollectionTest.java \
+    tests/support/Support_GetPutFields.java \
+    tests/support/Support_GetPutFieldsDefaulted.java \
+    tests/support/Support_GetPutFieldsDeprecated.java \
     tests/support/Support_ListTest.java \
     tests/support/Support_Locale.java \
     tests/support/Support_MapTest2.java \
+    tests/support/Support_OutputStream.java \
+    tests/support/Support_PlatformFile.java \
     tests/support/Support_Proxy_I1.java \
     tests/support/Support_Proxy_I2.java \
     tests/support/Support_Proxy_ParentException.java \
@@ -53,6 +63,7 @@ SUPPORT_SOURCES = \
     tests/support/Support_TimeZone.java \
     tests/support/Support_UnmodifiableCollectionTest.java \
     tests/support/Support_UnmodifiableMapTest.java \
+    tests/support/ThrowingReader.java \
     tests/util/CallVerificationStack.java
 
 TEST_SOURCES = \
@@ -102,17 +113,98 @@ TEST_SOURCES = \
     java/lang/ref/WeakReferenceTest.java \
     java/util/TreeMapTest.java \
     java/util/WeakHashMapTest.java \
+    java/util/regex/MatcherTest.java \
     libcore/icu/ICUTest.java \
     libcore/icu/LocaleDataTest.java \
+    libcore/io/MemoryTest.java \
+    libcore/java/io/CharArrayWriterTest.java \
+    libcore/java/io/DataOutputStreamTest.java \
+    libcore/java/io/FileDescriptorTest.java \
+    libcore/java/io/FileInputStreamTest.java \
+    libcore/java/io/FileOutputStreamTest.java \
+    libcore/java/io/FileTest.java \
+    libcore/java/io/InputStreamReaderTest.java \
+    libcore/java/io/ObjectOutputStreamTest.java \
+    libcore/java/io/OldAndroidBufferedInputStreamTest.java \
+    libcore/java/io/OldAndroidBufferedOutputStreamTest.java \
+    libcore/java/io/OldAndroidBufferedReaderTest.java \
+    libcore/java/io/OldAndroidBufferedWriterTest.java \
+    libcore/java/io/OldAndroidByteArrayInputStreamTest.java \
+    libcore/java/io/OldAndroidByteArrayOutputStreamTest.java \
+    libcore/java/io/OldAndroidCharArrayReaderTest.java \
+    libcore/java/io/OldAndroidDataInputStreamTest.java \
+    libcore/java/io/OldAndroidDataOutputStreamTest.java \
+    libcore/java/io/OldAndroidFileTest.java \
+    libcore/java/io/OldAndroidInputStreamReaderTest.java \
+    libcore/java/io/OldAndroidLineNumberReaderTest.java \
+    libcore/java/io/OldAndroidOutputStreamWriterTest.java \
+    libcore/java/io/OldAndroidPipedStreamTest.java \
+    libcore/java/io/OldAndroidPushbackInputStreamTest.java \
+    libcore/java/io/OldAndroidPushbackReaderTest.java \
+    libcore/java/io/OldAndroidSerializationTest.java \
+    libcore/java/io/OldAndroidStreamTokenizerTest.java \
+    libcore/java/io/OldAndroidStringReaderTest.java \
+    libcore/java/io/OldAndroidStringWriterTest.java \
+    libcore/java/io/OldBufferedInputStreamTest.java \
+    libcore/java/io/OldBufferedOutputStreamTest.java \
+    libcore/java/io/OldBufferedReaderTest.java \
+    libcore/java/io/OldBufferedWriterTest.java \
+    libcore/java/io/OldByteArrayInputStreamTest.java \
+    libcore/java/io/OldByteArrayOutputStreamTest.java \
+    libcore/java/io/OldCharArrayReaderTest.java \
+    libcore/java/io/OldCharArrayWriterTest.java \
+    libcore/java/io/OldDataInputOutputStreamTest.java \
+    libcore/java/io/OldDataInputStreamTest.java \
+    libcore/java/io/OldDataOutputStreamTest.java \
+    libcore/java/io/OldFileInputStreamTest.java \
+    libcore/java/io/OldFileReaderTest.java \
+    libcore/java/io/OldFileTest.java \
+    libcore/java/io/OldFileWriterTest.java \
+    libcore/java/io/OldFilterInputStreamTest.java \
+    libcore/java/io/OldFilterOutputStreamTest.java \
+    libcore/java/io/OldFilterReaderTest.java \
+    libcore/java/io/OldFilterWriterTest.java \
+    libcore/java/io/OldInputStreamReaderTest.java \
+    libcore/java/io/OldInputStreamTest.java \
+    libcore/java/io/OldLineNumberInputStreamTest.java \
+    libcore/java/io/OldLineNumberReaderTest.java \
+    libcore/java/io/OldObjectInputOutputStreamTest.java \
+    libcore/java/io/OldObjectInputStreamGetFieldTest.java \
+    libcore/java/io/OldObjectOutputStreamTest.java \
+    libcore/java/io/OldObjectStreamFieldTest.java \
+    libcore/java/io/OldOutputStreamTest.java \
+    libcore/java/io/OldPipedOutputStreamTest.java \
+    libcore/java/io/OldPipedWriterTest.java \
+    libcore/java/io/OldPushbackInputStreamTest.java \
+    libcore/java/io/OldPushbackReaderTest.java \
+    libcore/java/io/OldRandomAccessFileTest.java \
+    libcore/java/io/OldReaderTest.java \
+    libcore/java/io/OldSequenceInputStreamTest.java \
+    libcore/java/io/OldStreamTokenizerTest.java \
+    libcore/java/io/OldStringBufferInputStreamTest.java \
+    libcore/java/io/OldStringReaderTest.java \
+    libcore/java/io/OldStringWriterTest.java \
+    libcore/java/io/OldWriterTest.java \
+    libcore/java/io/OutputStreamWriterTest.java \
+    libcore/java/io/RandomAccessFileTest.java \
     libcore/java/io/StreamTokenizerTest.java \
+    libcore/java/lang/DoubleTest.java \
+    libcore/java/lang/CharacterTest.java \
+    libcore/java/lang/FloatTest.java \
     libcore/java/lang/IntegralToStringTest.java \
     libcore/java/lang/ThrowableTest.java \
     libcore/java/lang/reflect/AnnotationsTest.java \
     libcore/java/lang/reflect/ArrayTest.java \
     libcore/java/lang/reflect/ConstructorTest.java \
+    libcore/java/nio/BufferTest.java \
+    libcore/java/nio/NoArrayTest.java \
+    libcore/java/nio/OldAndroidNIOTest.java \
+    libcore/java/nio/OldDirectIntBufferTest.java \
+    libcore/java/nio/OldDirectShortBufferTest.java \
+    libcore/java/nio/channels/FileChannelTest.java \
+    libcore/java/nio/channels/OldFileChannelTest.java \
     libcore/java/nio/charset/CharsetDecoderTest.java \
     libcore/java/nio/charset/CharsetEncoderTest.java \
-    libcore/java/nio/charset/CharsetTest.java \
     libcore/java/text/CollatorTest.java \
     libcore/java/text/DecimalFormatTest.java \
     libcore/java/text/DecimalFormatSymbolsTest.java \
@@ -123,6 +215,23 @@ TEST_SOURCES = \
     libcore/java/util/OldTimeZoneTest.java \
     libcore/java/util/ServiceLoaderTest.java \
     libcore/java/util/TreeMapTest.java \
+    libcore/java/util/zip/DeflaterInputStreamTest.java \
+    libcore/java/util/zip/DeflaterOutputStreamTest.java \
+    libcore/java/util/zip/DeflaterTest.java \
+    libcore/java/util/zip/GZIPInputStreamTest.java \
+    libcore/java/util/zip/GZIPOutputStreamTest.java \
+    libcore/java/util/zip/InflaterTest.java \
+    libcore/java/util/zip/OldAndroidChecksumTest.java \
+    libcore/java/util/zip/OldAndroidDeflateTest.java \
+    libcore/java/util/zip/OldAndroidGZIPStreamTest.java \
+    libcore/java/util/zip/OldAndroidZipStreamTest.java \
+    libcore/java/util/zip/OldDataFormatExceptionTest.java \
+    libcore/java/util/zip/OldZipExceptionTest.java \
+    libcore/java/util/zip/ZipEntryTest.java \
+    libcore/java/util/zip/ZipFileTest.java \
+    libcore/java/util/zip/ZipInputStreamTest.java \
+    libcore/java/util/zip/ZipOutputStreamTest.java \
+    libcore/net/url/UrlUtilsTest.java \
     org/apache/harmony/archive/tests/java/util/zip/CRC32Test.java \
     org/apache/harmony/logging/tests/java/util/logging/ConsoleHandlerTest.java \
     org/apache/harmony/logging/tests/java/util/logging/ErrorManagerTest.java \
@@ -137,49 +246,6 @@ TEST_SOURCES = \
     org/apache/harmony/logging/tests/java/util/logging/SimpleFormatterTest.java \
     org/apache/harmony/logging/tests/java/util/logging/StreamHandlerTest.java \
     org/apache/harmony/logging/tests/java/util/logging/XMLFormatterTest.java \
-    org/apache/harmony/luni/tests/java/io/BufferedInputStreamTest.java \
-    org/apache/harmony/luni/tests/java/io/BufferedOutputStreamTest.java \
-    org/apache/harmony/luni/tests/java/io/BufferedReaderTest.java \
-    org/apache/harmony/luni/tests/java/io/BufferedWriterTest.java \
-    org/apache/harmony/luni/tests/java/io/ByteArrayInputStreamTest.java \
-    org/apache/harmony/luni/tests/java/io/ByteArrayOutputStreamTest.java \
-    org/apache/harmony/luni/tests/java/io/CharArrayReaderTest.java \
-    org/apache/harmony/luni/tests/java/io/CharArrayWriterTest.java \
-    org/apache/harmony/luni/tests/java/io/CharConversionExceptionTest.java \
-    org/apache/harmony/luni/tests/java/io/DataInputStreamTest.java \
-    org/apache/harmony/luni/tests/java/io/DataOutputStreamTest.java \
-    org/apache/harmony/luni/tests/java/io/EOFExceptionTest.java \
-    org/apache/harmony/luni/tests/java/io/FileDescriptorTest.java \
-    org/apache/harmony/luni/tests/java/io/FileInputStreamTest.java \
-    org/apache/harmony/luni/tests/java/io/FileNotFoundExceptionTest.java \
-    org/apache/harmony/luni/tests/java/io/FileReaderTest.java \
-    org/apache/harmony/luni/tests/java/io/FileTest.java \
-    org/apache/harmony/luni/tests/java/io/FileWriterTest.java \
-    org/apache/harmony/luni/tests/java/io/FilterInputStreamTest.java \
-    org/apache/harmony/luni/tests/java/io/FilterOutputStreamTest.java \
-    org/apache/harmony/luni/tests/java/io/FileOutputStreamTest.java \
-    org/apache/harmony/luni/tests/java/io/InputStreamReaderTest.java \
-    org/apache/harmony/luni/tests/java/io/InputStreamTest.java \
-    org/apache/harmony/luni/tests/java/io/InterruptedIOExceptionTest.java \
-    org/apache/harmony/luni/tests/java/io/IOExceptionTest.java \
-    org/apache/harmony/luni/tests/java/io/LineNumberReaderTest.java \
-    org/apache/harmony/luni/tests/java/io/ObjectStreamClassTest.java \
-    org/apache/harmony/luni/tests/java/io/OutputStreamWriterTest.java \
-    org/apache/harmony/luni/tests/java/io/PipedInputStreamTest.java \
-    org/apache/harmony/luni/tests/java/io/PipedOutputStreamTest.java \
-    org/apache/harmony/luni/tests/java/io/PipedReaderTest.java \
-    org/apache/harmony/luni/tests/java/io/PipedWriterTest.java \
-    org/apache/harmony/luni/tests/java/io/PrintStreamTest.java \
-    org/apache/harmony/luni/tests/java/io/PrintWriterTest.java \
-    org/apache/harmony/luni/tests/java/io/PushbackInputStreamTest.java \
-    org/apache/harmony/luni/tests/java/io/PushbackReaderTest.java \
-    org/apache/harmony/luni/tests/java/io/ReaderTest.java \
-    org/apache/harmony/luni/tests/java/io/SequenceInputStreamTest.java \
-    org/apache/harmony/luni/tests/java/io/StringReaderTest.java \
-    org/apache/harmony/luni/tests/java/io/StringWriterTest.java \
-    org/apache/harmony/luni/tests/java/io/UnsupportedEncodingExceptionTest.java \
-    org/apache/harmony/luni/tests/java/io/UTFDataFormatExceptionTest.java \
-    org/apache/harmony/luni/tests/java/io/WriterTest.java \
     org/apache/harmony/luni/tests/java/lang/ArithmeticExceptionTest.java \
     org/apache/harmony/luni/tests/java/lang/ArrayIndexOutOfBoundsExceptionTest.java \
     org/apache/harmony/luni/tests/java/lang/ArrayStoreExceptionTest.java \
@@ -228,37 +294,6 @@ TEST_SOURCES = \
     org/apache/harmony/luni/tests/java/lang/UnsupportedOperationExceptionTest.java \
     org/apache/harmony/luni/tests/java/lang/VirtualMachineErrorTest.java \
     org/apache/harmony/luni/tests/util/UtilTest.java \
-    org/apache/harmony/nio/tests/java/nio/BufferOverflowExceptionTest.java \
-    org/apache/harmony/nio/tests/java/nio/BufferTest.java \
-    org/apache/harmony/nio/tests/java/nio/ByteBufferTest.java \
-    org/apache/harmony/nio/tests/java/nio/ByteOrderTest.java \
-    org/apache/harmony/nio/tests/java/nio/CharBufferTest.java \
-    org/apache/harmony/nio/tests/java/nio/DoubleBufferTest.java \
-    org/apache/harmony/nio/tests/java/nio/FloatBufferTest.java \
-    org/apache/harmony/nio/tests/java/nio/IntBufferTest.java \
-    org/apache/harmony/nio/tests/java/nio/InvalidMarkExceptionTest.java \
-    org/apache/harmony/nio/tests/java/nio/LongBufferTest.java \
-    org/apache/harmony/nio/tests/java/nio/ShortBufferTest.java \
-    org/apache/harmony/nio/tests/java/nio/HeapByteBufferTest.java \
-    org/apache/harmony/nio/tests/java/nio/HeapCharBufferTest.java \
-    org/apache/harmony/nio/tests/java/nio/HeapDoubleBufferTest.java \
-    org/apache/harmony/nio/tests/java/nio/HeapFloatBufferTest.java \
-    org/apache/harmony/nio/tests/java/nio/HeapIntBufferTest.java \
-    org/apache/harmony/nio/tests/java/nio/HeapLongBufferTest.java \
-    org/apache/harmony/nio/tests/java/nio/HeapShortBufferTest.java \
-    org/apache/harmony/nio/tests/java/nio/ReadOnlyCharBufferTest.java \
-    org/apache/harmony/nio/tests/java/nio/ReadOnlyDoubleBufferTest.java \
-    org/apache/harmony/nio/tests/java/nio/ReadOnlyFloatBufferTest.java \
-    org/apache/harmony/nio/tests/java/nio/ReadOnlyHeapByteBufferTest.java \
-    org/apache/harmony/nio/tests/java/nio/ReadOnlyHeapCharBufferTest.java \
-    org/apache/harmony/nio/tests/java/nio/ReadOnlyHeapDoubleBufferTest.java \
-    org/apache/harmony/nio/tests/java/nio/ReadOnlyHeapFloatBufferTest.java \
-    org/apache/harmony/nio/tests/java/nio/ReadOnlyHeapIntBufferTest.java \
-    org/apache/harmony/nio/tests/java/nio/ReadOnlyHeapLongBufferTest.java \
-    org/apache/harmony/nio/tests/java/nio/ReadOnlyHeapShortBufferTest.java \
-    org/apache/harmony/nio/tests/java/nio/ReadOnlyIntBufferTest.java \
-    org/apache/harmony/nio/tests/java/nio/ReadOnlyLongBufferTest.java \
-    org/apache/harmony/nio/tests/java/nio/ReadOnlyShortBufferTest.java \
     org/apache/harmony/luni/tests/java/util/AbstractCollectionTest.java \
     org/apache/harmony/luni/tests/java/util/AbstractListTest.java \
     org/apache/harmony/luni/tests/java/util/AbstractMapTest.java \
@@ -296,6 +331,9 @@ TEST_SOURCES = \
     org/apache/harmony/tests/java/io/ObjectStreamConstantsTest.java \
     org/apache/harmony/tests/java/io/ObjectStreamFieldTest.java \
     org/apache/harmony/tests/java/io/RandomAccessFileTest.java \
+    org/apache/harmony/tests/java/lang/CharacterTest.java \
+    org/apache/harmony/tests/java/lang/DoubleTest.java \
+    org/apache/harmony/tests/java/lang/FloatTest.java \
     org/apache/harmony/tests/java/math/BigIntegerAddTest.java \
     org/apache/harmony/tests/java/math/BigIntegerAndTest.java \
     org/apache/harmony/tests/java/math/BigIntegerCompareTest.java \
@@ -334,13 +372,14 @@ TEST_SOURCES = \
     tests/targets/security/MessageDigestTestSHA384.java \
     tests/targets/security/MessageDigestTestSHA512.java \
 
+SUITE_SOURCES = \
+    libcore/java/io/SmallTests.java \
+    libcore/java/util/zip/SmallTests.java \
+
 FAILING_TESTS = \
     libcore/java/util/TreeSetTest.java \
-    org/apache/harmony/luni/tests/java/lang/DoubleTest.java \
-    org/apache/harmony/luni/tests/java/lang/FloatTest.java \
     org/apache/harmony/luni/tests/java/lang/StrictMathTest.java \
     org/apache/harmony/luni/tests/java/lang/StringBuilderTest.java \
-    org/apache/harmony/tests/java/util/regex/ModeTest.java \
 
 # Most of these tests are failing for a common index-out-of-range error.
 FAILING_MATH_TESTS = \
@@ -356,8 +395,12 @@ FAILING_MATH_TESTS = \
     org/apache/harmony/tests/java/math/BigIntegerXorTest.java \
     tests/api/java/math/BigIntegerTest.java \
 
+TESTS_TO_RUN = $(subst /,.,$(TEST_SOURCES:%.java=%))
+
 SUPPORT_OBJS = $(SUPPORT_SOURCES:%.java=$(TESTS_DIR)/%.o)
-TEST_OBJS = $(TEST_SOURCES:%.java=$(TESTS_DIR)/%.o)
+TEST_OBJS = \
+    $(TEST_SOURCES:%.java=$(TESTS_DIR)/%.o) \
+    $(SUITE_SOURCES:%.java=$(TESTS_DIR)/%.o)
 
 TEST_RESOURCES_SRCS = \
     org/apache/harmony/luni/tests/test_resource.txt \
@@ -373,7 +416,10 @@ ANDROID_TEST_RESOURCES_SRCS = \
     SHA-384.check \
     SHA-384.data \
     SHA-512.check \
-    SHA-512.data
+    SHA-512.data \
+    tests/api/java/io/testFields.ser \
+    tests/api/java/io/testFieldsDefaulted.ser \
+    tests/api/java/io/testFieldsDeprecated.ser
 LOGGING_TEST_RESOURCES_SRCS = \
     bundles/java/util/logging/res.properties \
     bundles/java/util/logging/res2.properties \
@@ -396,13 +442,13 @@ TEST_RESOURCES = \
 JUNIT_DIST_JAR = $(DIST_JAR_DIR)/$(JUNIT_JAR)
 
 TEST_JOCC = ../dist/j2objcc -g -I$(TESTS_DIR) -l junit -Werror \
-    -L$(TESTS_DIR) -l test-support
+    -L$(TESTS_DIR) -l test-support -ObjC
 SUPPORT_LIB = $(TESTS_DIR)/libtest-support.a
 TEST_BIN = $(TESTS_DIR)/jre_unit_tests
 
 GEN_OBJC_DIR = $(TESTS_DIR)
-TRANSLATE_JAVA_FULL = $(SUPPORT_SOURCES) $(TEST_SOURCES)
-TRANSLATE_JAVA_RELATIVE = $(SUPPORT_SOURCES) $(TEST_SOURCES)
+TRANSLATE_JAVA_FULL = $(SUPPORT_SOURCES) $(TEST_SOURCES) $(SUITE_SOURCES)
+TRANSLATE_JAVA_RELATIVE = $(SUPPORT_SOURCES) $(TEST_SOURCES) $(SUITE_SOURCES)
 TRANSLATE_ARGS = -classpath $(JUNIT_DIST_JAR) -Werror -sourcepath $(TEST_SRC) \
     --extract-unsequenced -encoding UTF-8
 include ../make/translate.mk
@@ -432,7 +478,13 @@ $(TESTS_DIR)/%: $(LOGGING_TEST_RESOURCES_ROOT)/%
 	@cp $< $@
 
 run-tests: link resources $(TEST_BIN)
-	@$(TEST_BIN) org.junit.runner.JUnitCore $(subst /,.,$(TEST_SOURCES:%.java=%))
+	@$(TEST_BIN) org.junit.runner.JUnitCore $(TESTS_TO_RUN)
+
+run-io-tests: link resources $(TEST_BIN)
+	@$(TEST_BIN) org.junit.runner.JUnitCore libcore.java.io.SmallTests
+
+run-zip-tests: link resources $(TEST_BIN)
+	@$(TEST_BIN) org.junit.runner.JUnitCore libcore.java.util.zip.SmallTests
 
 # Run this when the above has errors and JUnit doesn't report which
 # test failed or hung.

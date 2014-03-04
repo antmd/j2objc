@@ -119,7 +119,8 @@ public class NameTable {
 
       // Definitions from stdio.h
       "va_list", "fpos_t", "FILE", "off_t", "ssize_t", "BUFSIZ", "EOF", "FOPEN_MAX",
-      "FILENAME_MAX", "TMP_MAX", "SEEK_SET", "SEEK_CUR", "SEEK_END", "stdin", "stdout", "stderr",
+      "FILENAME_MAX", "R_OK", "SEEK_SET", "SEEK_CUR", "SEEK_END", "stdin", "STDIN_FILENO",
+      "stdout", "STDOUT_FILENO", "stderr", "STDERR_FILENO", "TMP_MAX", "W_OK", "X_OK",
 
       // Definitions from stdlib.h
       "ct_rune_t", "rune_t", "div_t", "ldiv_t", "lldiv_t", "dev_t", "mode_t",
@@ -153,8 +154,40 @@ public class NameTable {
       // Definitions from math.h
       "DOMAIN", "HUGE", "INFINITY", "NAN", "OVERFLOW", "SING", "UNDERFLOW",
 
+      // Definitions from mman.h
+      "MAP_FIXED", "MAP_PRIVATE", "MAP_SHARED", "MCL_CURRENT", "MCL_FUTURE", "MS_ASYNC",
+      "MS_INVALIDATE", "MS_SYNC", "PROT_EXEC", "PROT_NONE", "PROT_READ", "PROT_WRITE",
+
+      // Definitions from netdb.h
+      "AI_ADDRCONFIG", "AI_ALL", "AI_CANONNAME", "AI_NUMERICHOST", "AI_NUMERICSERV",
+      "AI_PASSIVE", "AI_V4MAPPED", "EAI_AGAIN", "EAI_BADFLAGS", "EAI_FAIL", "EAI_FAMILY",
+      "EAI_MEMORY", "EAI_NODATA", "EAI_NONAME", "EAI_OVERFLOW", "EAI_SERVICE", "EAI_SOCKTYPE",
+      "EAI_SYSTEM", "NI_NAMEREQD",
+
+      // Definitions from net/if.h
+      "IFF_LOOPBACK", "IFF_MULTICAST", "IFF_POINTTOPOINT", "IFF_UP",
+
+      // Definitions from netinet/in.h, in6.h
+      "IPPROTO_IP", "IPPROTO_IPV6", "IPPROTO_TCP", "IPV6_MULTICAST_HOPS", "IPV6_MULTICAST_IF",
+      "IP_MULTICAST_LOOP", "IPV6_TCLASS", "MCAST_JOIN_GROUP", "MCAST_JOIN_GROUP",
+
+      // Definitions from socket.h
+      "AF_INET", "AF_INET6", "AF_UNIX", "AF_UNSPEC", "MSG_OOB", "MSG_PEEK", "SHUT_RD", "SHUT_RDWR",
+      "SHUT_WR", "SOCK_DGRAM", "SOCK_STREAM",
+
       // Definitions from stat.h
-      "S_IFBLK", "S_IFCHR", "S_IFDIR", "S_IFIFO", "S_IFLNK", "S_IFMT", "S_IFREG",
+      "S_IFBLK", "S_IFCHR", "S_IFDIR", "S_IFIFO", "S_IFLNK", "S_IFMT", "S_IFREG", "S_IFSOCK",
+
+      // Definitions from sys/poll.h
+      "POLLERR", "POLLHUP", "POLLIN", "POLLOUT",
+
+      // Definitions from types.h
+      "S_IRGRP", "S_IROTH", "S_IRUSR", "S_IRWXG", "S_IRWXO", "S_IRWXU", "S_IWGRP", "S_IWOTH",
+      "S_IWUSR", "S_IXGRP", "S_IXOTH", "S_IXUSR",
+
+      // Definitions from unistd.h
+      "F_OK", "R_OK", "STDERR_FILENO", "STDIN_FILENO", "STDOUT_FILENO", "W_OK", "X_OK",
+      "_SC_PAGESIZE", "_SC_PAGE_SIZE",
 
       // Cocoa definitions from ConditionalMacros.h
       "CFMSYSTEMCALLS", "CGLUESUPPORTED", "FUNCTION_PASCAL", "FUNCTION_DECLSPEC",
@@ -287,11 +320,7 @@ public class NameTable {
       logger.fine(String.format("Changing previous rename: %s => %s, now: %s => %s",
           oldName.toString(), previousName, oldName, newName));
     }
-    rename(oldName, newName, false);
-  }
-
-  public static void rename(IBinding oldName, String newName, boolean allowPreviousRenames) {
-    instance.renamings.put(getBindingDeclaration(oldName), newName);
+    instance.renamings.put(oldName, newName);
   }
 
   /**

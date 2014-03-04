@@ -55,6 +55,7 @@ IOS_OBJS = \
 	NSObject+JavaObject.o \
 	NSString+JavaString.o \
 	java_lang_RealToString.o \
+	java_lang_StringToReal.o \
 	java/lang/reflect/ExecutableMember.o \
 	java/lang/reflect/ParameterizedTypeImpl.o \
 	java/lang/reflect/TypeVariableImpl.o
@@ -196,6 +197,7 @@ JAVA_SOURCES = \
 	java/io/FileInputStream.java \
 	java/io/FileNotFoundException.java \
 	java/io/FileOutputStream.java \
+	java/io/FilePermission.java \
 	java/io/FileReader.java \
 	java/io/FileWriter.java \
 	java/io/FilterInputStream.java \
@@ -208,6 +210,7 @@ JAVA_SOURCES = \
 	java/io/InvalidClassException.java \
 	java/io/InvalidObjectException.java \
 	java/io/IOException.java \
+	java/io/LineNumberInputStream.java \
 	java/io/LineNumberReader.java \
 	java/io/NotActiveException.java \
 	java/io/NotSerializableException.java \
@@ -235,6 +238,7 @@ JAVA_SOURCES = \
 	java/io/SerializationHandleMap.java \
 	java/io/StreamCorruptedException.java \
 	java/io/StreamTokenizer.java \
+	java/io/StringBufferInputStream.java \
 	java/io/StringReader.java \
 	java/io/StringWriter.java \
 	java/io/SyncFailedException.java \
@@ -269,6 +273,7 @@ JAVA_SOURCES = \
 	java/lang/Exception.java \
 	java/lang/ExceptionInInitializerError.java \
 	java/lang/Float.java \
+	java/lang/HexStringParser.java \
 	java/lang/IllegalAccessException.java \
 	java/lang/IllegalArgumentException.java \
 	java/lang/IllegalMonitorStateException.java \
@@ -296,6 +301,7 @@ JAVA_SOURCES = \
 	java/lang/Package.java \
 	java/lang/Readable.java \
 	java/lang/RealToString.java \
+	java/lang/StringToReal.java \
 	java/lang/annotation/Documented.java \
 	java/lang/annotation/Inherited.java \
 	java/lang/annotation/Retention.java \
@@ -357,39 +363,38 @@ JAVA_SOURCES = \
 	java/net/URIEncoderDecoder.java \
 	java/net/URISyntaxException.java \
 	java/nio/Buffer.java \
-	java/nio/BufferFactory.java \
 	java/nio/BufferOverflowException.java \
 	java/nio/BufferUnderflowException.java \
+	java/nio/ByteArrayBuffer.java \
 	java/nio/ByteBuffer.java \
+	java/nio/ByteBufferAsCharBuffer.java \
+	java/nio/ByteBufferAsDoubleBuffer.java \
+	java/nio/ByteBufferAsFloatBuffer.java \
+	java/nio/ByteBufferAsIntBuffer.java \
+	java/nio/ByteBufferAsLongBuffer.java \
+	java/nio/ByteBufferAsShortBuffer.java \
 	java/nio/ByteOrder.java \
 	java/nio/CharArrayBuffer.java \
 	java/nio/CharBuffer.java \
 	java/nio/CharSequenceAdapter.java \
+	java/nio/DirectByteBuffer.java \
 	java/nio/DoubleArrayBuffer.java \
 	java/nio/DoubleBuffer.java \
+	java/nio/FileChannelImpl.java \
+	java/nio/FileDescriptorChannel.java \
 	java/nio/FloatArrayBuffer.java \
 	java/nio/FloatBuffer.java \
-	java/nio/HeapByteBuffer.java \
 	java/nio/IntArrayBuffer.java \
 	java/nio/IntBuffer.java \
 	java/nio/InvalidMarkException.java \
+	java/nio/IoVec.java \
 	java/nio/LongArrayBuffer.java \
 	java/nio/LongBuffer.java \
+	java/nio/MappedByteBuffer.java \
+	java/nio/MemoryBlock.java \
+	java/nio/NIOAccess.java \
+	java/nio/NioUtils.java \
 	java/nio/ReadOnlyBufferException.java \
-	java/nio/ReadOnlyCharArrayBuffer.java \
-	java/nio/ReadOnlyDoubleArrayBuffer.java \
-	java/nio/ReadOnlyFloatArrayBuffer.java \
-	java/nio/ReadOnlyHeapByteBuffer.java \
-	java/nio/ReadOnlyIntArrayBuffer.java \
-	java/nio/ReadOnlyLongArrayBuffer.java \
-	java/nio/ReadOnlyShortArrayBuffer.java \
-	java/nio/ReadWriteCharArrayBuffer.java \
-	java/nio/ReadWriteDoubleArrayBuffer.java \
-	java/nio/ReadWriteFloatArrayBuffer.java \
-	java/nio/ReadWriteHeapByteBuffer.java \
-	java/nio/ReadWriteIntArrayBuffer.java \
-	java/nio/ReadWriteLongArrayBuffer.java \
-	java/nio/ReadWriteShortArrayBuffer.java \
 	java/nio/ShortArrayBuffer.java \
 	java/nio/ShortBuffer.java \
 	java/nio/charset/CharacterCodingException.java \
@@ -409,6 +414,33 @@ JAVA_SOURCES = \
 	java/nio/charset/StandardCharsets.java \
 	java/nio/charset/UnmappableCharacterException.java \
 	java/nio/charset/UnsupportedCharsetException.java \
+	java/nio/channels/AlreadyConnectedException.java \
+	java/nio/channels/AsynchronousCloseException.java \
+	java/nio/channels/ByteChannel.java \
+	java/nio/channels/CancelledKeyException.java \
+	java/nio/channels/Channel.java \
+	java/nio/channels/ClosedByInterruptException.java \
+	java/nio/channels/ClosedChannelException.java \
+	java/nio/channels/ClosedSelectorException.java \
+	java/nio/channels/ConnectionPendingException.java \
+	java/nio/channels/FileChannel.java \
+	java/nio/channels/FileLock.java \
+	java/nio/channels/FileLockInterruptionException.java \
+	java/nio/channels/GatheringByteChannel.java \
+	java/nio/channels/IllegalBlockingModeException.java \
+	java/nio/channels/IllegalSelectorException.java \
+	java/nio/channels/InterruptibleChannel.java \
+	java/nio/channels/NoConnectionPendingException.java \
+	java/nio/channels/NonReadableChannelException.java \
+	java/nio/channels/NonWritableChannelException.java \
+	java/nio/channels/NotYetBoundException.java \
+	java/nio/channels/OverlappingFileLockException.java \
+	java/nio/channels/ReadableByteChannel.java \
+	java/nio/channels/ScatteringByteChannel.java \
+	java/nio/channels/UnresolvedAddressException.java \
+	java/nio/channels/UnsupportedAddressTypeException.java \
+	java/nio/channels/WritableByteChannel.java \
+	java/nio/channels/spi/AbstractInterruptibleChannel.java \
 	java/security/AccessControlContext.java \
 	java/security/AccessControlException.java \
 	java/security/AccessController.java \
@@ -606,6 +638,7 @@ JAVA_SOURCES = \
 	java/util/TreeSet.java \
 	java/util/UnknownFormatConversionException.java \
 	java/util/UnknownFormatFlagsException.java \
+	java/util/UnsafeArrayList.java \
 	java/util/UUID.java \
 	java/util/Vector.java \
 	java/util/WeakHashMap.java \
@@ -615,12 +648,27 @@ JAVA_SOURCES = \
 	java/util/regex/Pattern.java \
 	java/util/regex/PatternSyntaxException.java \
 	java/util/regex/Splitter.java \
+	java/util/zip/Adler32.java \
+	java/util/zip/CheckedInputStream.java \
+	java/util/zip/CheckedOutputStream.java \
 	java/util/zip/Checksum.java \
 	java/util/zip/CRC32.java \
 	java/util/zip/DataFormatException.java \
+	java/util/zip/Deflater.java \
+	java/util/zip/DeflaterInputStream.java \
+	java/util/zip/DeflaterOutputStream.java \
 	java/util/zip/GZIPInputStream.java \
+	java/util/zip/GZIPOutputStream.java \
 	java/util/zip/Inflater.java \
 	java/util/zip/InflaterInputStream.java \
+	java/util/zip/InflaterOutputStream.java \
+	java/util/zip/ZipConstants.java \
+	java/util/zip/ZipEntry.java \
+	java/util/zip/ZipError.java \
+	java/util/zip/ZipException.java \
+	java/util/zip/ZipFile.java \
+	java/util/zip/ZipInputStream.java \
+	java/util/zip/ZipOutputStream.java \
 	javax/xml/XMLConstants.java \
 	javax/xml/parsers/FactoryConfigurationError.java \
 	javax/xml/parsers/FilePathToURI.java \
@@ -639,7 +687,10 @@ JAVA_SOURCES = \
 	libcore/icu/TimeZoneNames.java \
 	libcore/icu/TimeZones.java \
 	libcore/internal/StringPool.java \
+	libcore/io/BufferIterator.java \
+	libcore/io/DeleteOnExit.java \
 	libcore/io/ErrnoException.java \
+	libcore/io/HeapBufferIterator.java \
 	libcore/io/IoBridge.java \
 	libcore/io/IoUtils.java \
 	libcore/io/Libcore.java \
@@ -648,14 +699,21 @@ JAVA_SOURCES = \
 	libcore/io/OsConstants.java \
 	libcore/io/Posix.java \
 	libcore/io/SizeOf.java \
+	libcore/io/Streams.java \
+	libcore/io/StructFlock.java \
+	libcore/io/StructPollfd.java \
 	libcore/io/StructStat.java \
+	libcore/io/StructStatVfs.java \
 	libcore/math/MathUtils.java \
 	libcore/net/UriCodec.java \
+	libcore/net/MimeUtils.java \
+	libcore/net/http/HttpDate.java \
 	libcore/net/url/FileHandler.java \
 	libcore/net/url/UrlUtils.java \
 	libcore/util/BasicLruCache.java \
 	libcore/util/EmptyArray.java \
 	libcore/util/MutableInt.java \
+	libcore/util/MutableLong.java \
 	libcore/util/Objects.java \
 	libcore/util/SneakyThrow.java \
 	org/apache/harmony/luni/platform/Endianness.java \
@@ -720,7 +778,7 @@ GEN_OBJC_DIR = $(TRANSLATED_SOURCE_DIR)
 TRANSLATE_JAVA_FULL = $(JAVA_TO_TRANSLATE)
 TRANSLATE_JAVA_RELATIVE = $(JAVA_TO_TRANSLATE)
 TRANSLATE_ARGS = --mem-debug -sourcepath $(JRE_SRC) -classpath $(EMULATION_JAR) \
-  $(J2OBJC_DEBUGFLAGS) -encoding UTF-8
+  $(J2OBJC_DEBUGFLAGS) -encoding UTF-8 --extract-unsequenced
 TRANSLATE_USE_SYSTEM_BOOT_PATH = TRUE
 include ../make/translate.mk
 
@@ -781,7 +839,7 @@ $(sort $(DIRS_TO_MAKE)):
 
 $(CLASS_DIR)/%.o: $(EMULATION_CLASS_DIR)/%.m | translate
 	@mkdir -p $(@D)
-	$(CLANG) $(OBJCFLAGS) -I$(EMULATION_CLASS_DIR) -I$(GEN_OBJC_DIR) -c $< -o $@
+	$(CLANG) $(OBJCFLAGS) -I$(EMULATION_CLASS_DIR) -I$(GEN_OBJC_DIR) $(SDK_FLAGS) -c $< -o $@
 
 test: libs_dist $(DIST_DIR)/j2objcc
 	$(MAKE) -f tests.mk test

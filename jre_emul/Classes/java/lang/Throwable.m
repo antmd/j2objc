@@ -42,9 +42,10 @@
 
 void FillInStackTraceInternal(JavaLangThrowable *this) {
   void *callStack[MAX_STACK_FRAMES];
-  unsigned nFrames = backtrace(callStack, MAX_STACK_FRAMES);
-  this->stackTrace = RETAIN_([JavaLangThrowable stackTrace:callStack
-                                                     count:nFrames]);
+  this->rawFrameCount = backtrace(callStack, MAX_STACK_FRAMES);
+  unsigned nBytes = this->rawFrameCount * sizeof(void *);
+  this->rawCallStack = malloc(nBytes);
+  memcpy(this->rawCallStack, callStack, nBytes);
 }
 
 // This init message implementation is hand-modified to
@@ -91,31 +92,41 @@ void FillInStackTraceInternal(JavaLangThrowable *this) {
                            withJavaLangThrowable:causeArg];
 }
 
-+ (IOSObjectArray *)stackTrace:(void **)addresses
-                         count:(unsigned)count {
-  NSMutableArray *frames = [NSMutableArray array];
-  for (int i = 0; i < count; i++) {
-    JavaLangStackTraceElement *element = AUTORELEASE(
-        [[JavaLangStackTraceElement alloc] initWithLong:(long long int)addresses[i]]);
-    // Filter out native functions (no class), NSInvocation methods, and internal constructor.
-    NSString *className = [element getClassName];
-    if (className && ![className isEqualToString:@"NSInvocation"] &&
-        ![[element getMethodName] hasPrefix:@"initJavaLangThrowable"]) {
-      [frames addObject:element];
+- (IOSObjectArray *)filterStackTrace {
+  if (rawCallStack) {
+    @synchronized (self) {
+      if (rawCallStack) {
+        NSMutableArray *frames = [NSMutableArray array];
+        for (int i = 0; i < rawFrameCount; i++) {
+          JavaLangStackTraceElement *element = AUTORELEASE(
+              [[JavaLangStackTraceElement alloc] initWithLong:(long long int) rawCallStack[i]]);
+          // Filter out native functions (no class), NSInvocation methods, and internal constructor.
+          NSString *className = [element getClassName];
+          if (className && ![className isEqualToString:@"NSInvocation"] &&
+              ![[element getMethodName] hasPrefix:@"initJavaLangThrowable"]) {
+            [frames addObject:element];
+          }
+        }
+        JavaLangStackTraceElement *element = [frames lastObject];
+        // Remove initial Method.invoke(), so app's main method is last.
+        if ([[element getClassName] isEqualToString:@"JavaLangReflectMethod"] &&
+            [[element getMethodName] isEqualToString:@"invoke"]) {
+          [frames removeLastObject];
+        }
+        stackTrace =  RETAIN_([IOSObjectArray arrayWithNSArray:frames
+                                                          type:[JavaLangStackTraceElement getClass]]);
+        free(rawCallStack);
+        rawCallStack = NULL;
+      }
     }
   }
-  JavaLangStackTraceElement *element = [frames lastObject];
-  // Remove initial Method.invoke(), so app's main method is last.
-  if ([[element getClassName] isEqualToString:@"JavaLangReflectMethod"] &&
-      [[element getMethodName] isEqualToString:@"invoke"]) {
-    [frames removeLastObject];
-  }
-  return [IOSObjectArray arrayWithNSArray:frames
-                                     type:[JavaLangStackTraceElement getClass]];
+  return stackTrace;
 }
 
 - (JavaLangThrowable *)fillInStackTrace {
-  FillInStackTraceInternal(self);
+  @synchronized (self) {
+    FillInStackTraceInternal(self);
+  }
   return self;
 }
 
@@ -132,7 +143,7 @@ void FillInStackTraceInternal(JavaLangThrowable *this) {
 }
 
 - (IOSObjectArray *)getStackTrace {
-  return stackTrace;
+  return [self filterStackTrace];
 }
 
 - (JavaLangThrowable *)initCauseWithJavaLangThrowable:
@@ -163,11 +174,11 @@ void FillInStackTraceInternal(JavaLangThrowable *this) {
 
 - (void)printStackTraceWithJavaIoPrintWriter:(JavaIoPrintWriter *)pw {
   [pw printlnWithNSString:[self description]];
-  NSUInteger nFrames = [stackTrace count];
-  for (NSUInteger i = 0; i < nFrames; i++) {
+  IOSObjectArray *trace = [self filterStackTrace];
+  for (NSUInteger i = 0; i < trace->size_; i++) {
     [pw printWithNSString:@"\tat "];
-    id trace = stackTrace->buffer_[i];
-    [pw printlnWithId:trace];
+    id frame = trace->buffer_[i];
+    [pw printlnWithId:frame];
   }
   if (self->cause) {
     [pw printWithNSString:@"Caused by: "];
@@ -177,11 +188,11 @@ void FillInStackTraceInternal(JavaLangThrowable *this) {
 
 - (void)printStackTraceWithJavaIoPrintStream:(JavaIoPrintStream *)ps {
   [ps printlnWithNSString:[self description]];
-  NSUInteger nFrames = [stackTrace count];
-  for (NSUInteger i = 0; i < nFrames; i++) {
+  IOSObjectArray *trace = [self filterStackTrace];
+  for (NSUInteger i = 0; i < trace->size_; i++) {
     [ps printWithNSString:@"\tat "];
-    id trace = stackTrace->buffer_[i];
-    [ps printlnWithId:trace];
+    id frame = trace->buffer_[i];
+    [ps printlnWithId:frame];
   }
   if (self->cause) {
     [ps printWithNSString:@"Caused by: "];
@@ -192,16 +203,19 @@ void FillInStackTraceInternal(JavaLangThrowable *this) {
 - (void)setStackTraceWithJavaLangStackTraceElementArray:
     (IOSObjectArray *)stackTraceArg {
   nil_chk(stackTraceArg);
-  int count = [stackTraceArg count];
-  for (int i = 0; i < count; i++) {
-    nil_chk(stackTraceArg->buffer_[i]);
-  }
+  @synchronized (self) {
+    [self maybeFreeRawCallStack];
+    int count = [stackTraceArg count];
+    for (int i = 0; i < count; i++) {
+      nil_chk(stackTraceArg->buffer_[i]);
+    }
 #if __has_feature(objc_arc)
-  stackTrace = stackTraceArg;
+    stackTrace = stackTraceArg;
 #else
-  [stackTrace autorelease];
-  stackTrace = [stackTraceArg retain];
+    [stackTrace autorelease];
+    stackTrace = [stackTraceArg retain];
 #endif
+  }
 }
 
 - (void)addSuppressedWithJavaLangThrowable:(JavaLangThrowable *)exception {
@@ -209,22 +223,20 @@ void FillInStackTraceInternal(JavaLangThrowable *this) {
   if (exception == self) {
     @throw AUTORELEASE([[JavaLangIllegalArgumentException alloc] init]);
   }
-  NSUInteger existingCount =
-      suppressedExceptions ? [suppressedExceptions count] : 0;
-  IOSObjectArray *newArray = [[IOSObjectArray alloc]
-      initWithLength:existingCount + 1
-                type:[IOSClass classWithClass:[JavaLangThrowable class]]];
-  for (NSUInteger i = 0; i < existingCount; i++) {
-    [newArray replaceObjectAtIndex:i withObject:suppressedExceptions->buffer_[i]];
+  @synchronized (self) {
+    NSUInteger existingCount =
+        suppressedExceptions ? [suppressedExceptions count] : 0;
+    IOSObjectArray *newArray = [[IOSObjectArray alloc]
+        initWithLength:existingCount + 1
+                  type:[IOSClass classWithClass:[JavaLangThrowable class]]];
+    for (NSUInteger i = 0; i < existingCount; i++) {
+      [newArray replaceObjectAtIndex:i withObject:suppressedExceptions->buffer_[i]];
+    }
+    [newArray replaceObjectAtIndex:existingCount
+                        withObject:exception];
+    RELEASE_(suppressedExceptions);
+    suppressedExceptions = newArray;
   }
-  [newArray replaceObjectAtIndex:existingCount
-                      withObject:exception];
-#if ! __has_feature(objc_arc)
-  if (suppressedExceptions) {
-    [suppressedExceptions release];
-  }
-#endif
-  suppressedExceptions = newArray;
 }
 
 - (IOSObjectArray *)getSuppressed {
@@ -244,15 +256,23 @@ void FillInStackTraceInternal(JavaLangThrowable *this) {
   }
 }
 
-#if ! __has_feature(objc_arc)
+- (void)maybeFreeRawCallStack {
+  if (rawCallStack) {
+    free(rawCallStack);
+    rawCallStack = NULL;
+  }
+}
+
 - (void)dealloc {
+  [self maybeFreeRawCallStack];
+#if ! __has_feature(objc_arc)
   JreMemDebugRemove(self);
   [cause release];
   [detailMessage release];
   [stackTrace release];
   [super dealloc];
-}
 #endif
+}
 
 // Generated by running the translator over the java.lang.Throwable stub file.
 + (J2ObjcClassInfo *)__metadata {

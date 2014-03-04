@@ -319,7 +319,7 @@ public class StatementGeneratorTest extends GenerationTest {
         "  String b = \"foo\" + a.hashCode() + \"bar\" + a.length() + \"baz\"; } }",
         "Test", "Test.m");
     assertTranslation(translation,
-        "[NSString stringWithFormat:@\"foo%dbar%dbaz\", (int) [a hash], (int) [a length]]");
+        "[NSString stringWithFormat:@\"foo%dbar%dbaz\", ((int) [a hash]), ((int) [a length])]");
   }
 
   public void testVarargsMethodInvocation() throws IOException {
@@ -586,8 +586,8 @@ public class StatementGeneratorTest extends GenerationTest {
     assertTranslatedLines(result,
         "{",
           "IOSObjectArray *a__ = strings;",
-          "id const *b__ = a__->buffer_;",
-          "id const *e__ = b__ + a__->size_;",
+          "NSString * const *b__ = a__->buffer_;",
+          "NSString * const *e__ = b__ + a__->size_;",
           "while (b__ < e__) {",
             "NSString *string = (*b__++);",
           "}",
@@ -646,9 +646,8 @@ public class StatementGeneratorTest extends GenerationTest {
     List<Statement> stmts = translateStatements(source);
     assertEquals(1, stmts.size());
     String result = generateStatement(stmts.get(0));
-    assertEquals(
-        "int i = [((JavaLangThrowable *) [[[JavaLangThrowable alloc] init] autorelease]) hash];",
-        result);
+    assertEquals("int i = ((int) [((JavaLangThrowable *) " +
+    		"[[[JavaLangThrowable alloc] init] autorelease]) hash]);", result);
   }
 
   public void testInnerClassCreation() throws IOException {
@@ -911,8 +910,8 @@ public class StatementGeneratorTest extends GenerationTest {
       "  int length; static ArrayList<String> strings = new ArrayList<String>();" +
       "  public static void main(String[] args) { int n = strings.get(1).length(); }}",
       "Test", "Test.m");
-    assertTranslation(translation, "[((NSString *) " +
-      "nil_chk([((JavaUtilArrayList *) nil_chk(Test_strings_)) getWithInt:1])) length];");
+    assertTranslation(translation, "((int) [((NSString *) " +
+      "nil_chk([((JavaUtilArrayList *) nil_chk(Test_strings_)) getWithInt:1])) length]);");
   }
 
   // b/5872757: verify multi-dimensional array has cast before each
@@ -1650,5 +1649,17 @@ public class StatementGeneratorTest extends GenerationTest {
     assertTranslation(translation,
         "S1_ = @\"?\" \"?=?\" \"?/?\" \"?'?\" \"?(?\" \"?)?\" \"?!?\" \"?<?\" \"?>?\" \"?-\";");
     assertTranslation(translation, "S2_ = @\"??@??$??%??&??*??A??z??1??.\";");
+  }
+
+  // Verify that String.length() and Object.hashCode() return values are cast when used.
+  public void testStringLengthCompare() throws IOException {
+    String translation = translateSourceFile(
+        "public class Test { boolean test(String s) { return -2 < \"1\".length(); }" +
+        "  void test2(Object o) { o.hashCode(); }}",
+        "Test", "Test.m");
+    // Verify referenced return value is cast.
+    assertTranslation(translation, "return -2 < ((int) [@\"1\" length]);");
+    // Verify unused return value isn't.
+    assertTranslation(translation, "[nil_chk(o) hash];");
   }
 }

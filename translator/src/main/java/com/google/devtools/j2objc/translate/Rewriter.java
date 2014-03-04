@@ -228,9 +228,9 @@ public class Rewriter extends ErrorReportingASTVisitor {
     IMethodBinding binding = Types.getMethodBinding(node);
 
     if (BindingUtil.hasAnnotation(binding, AutoreleasePool.class)) {
-      if (!Types.isVoidType(binding.getReturnType())) {
+      if (!binding.getReturnType().isPrimitive()) {
         J2ObjC.warning(
-            "Warning: Ignoring AutoreleasePool annotation on method with non-void return type");
+            "Warning: Ignoring AutoreleasePool annotation on method with retainable return type");
       } else if (node.getBody() != null) {
         Types.addAutoreleasePool(node.getBody());
       }
@@ -508,9 +508,6 @@ public class Rewriter extends ErrorReportingASTVisitor {
       AST ast, Expression expression, ITypeBinding expressionType, IVariableBinding loopVariable,
       Statement loopBody) {
     ITypeBinding componentType = expressionType.getComponentType();
-    if (!componentType.isPrimitive()) {
-      componentType = Types.resolveIOSType("id");
-    }
     ITypeBinding iosArrayType = Types.resolveArrayType(componentType);
     PointerTypeBinding bufferType = new PointerTypeBinding(componentType);
     IVariableBinding arrayVariable = new GeneratedVariableBinding(
@@ -612,6 +609,7 @@ public class Rewriter extends ErrorReportingASTVisitor {
 
   @Override
   public void endVisit(InfixExpression node) {
+    AST ast = node.getAST();
     InfixExpression.Operator op = node.getOperator();
     ITypeBinding type = Types.getTypeBinding(node);
     ITypeBinding lhsType = Types.getTypeBinding(node.getLeftOperand());
@@ -620,7 +618,6 @@ public class Rewriter extends ErrorReportingASTVisitor {
         && !Types.isJavaStringType(lhsType) && !Types.isJavaStringType(rhsType)) {
       // String concatenation where the first two operands are not strings.
       // We move all the preceding non-string operands into a sub-expression.
-      AST ast = node.getAST();
       ITypeBinding nonStringExprType = getAdditionType(ast, lhsType, rhsType);
       InfixExpression nonStringExpr = ast.newInfixExpression();
       InfixExpression stringExpr = ast.newInfixExpression();
@@ -656,7 +653,6 @@ public class Rewriter extends ErrorReportingASTVisitor {
       if (node.getParent() instanceof InfixExpression) {
         InfixExpression parent = (InfixExpression) node.getParent();
         if (parent.getOperator() == InfixExpression.Operator.CONDITIONAL_OR) {
-          AST ast = node.getAST();
           ParenthesizedExpression expr =
               ASTFactory.newParenthesizedExpression(ast, NodeCopier.copySubtree(ast, node));
           ASTUtil.setProperty(node, expr);
@@ -666,10 +662,25 @@ public class Rewriter extends ErrorReportingASTVisitor {
       // Avoid bitwise-op-parentheses compiler warnings.
       if (node.getParent() instanceof InfixExpression &&
           ((InfixExpression) node.getParent()).getOperator() == InfixExpression.Operator.OR) {
-        AST ast = node.getAST();
         ParenthesizedExpression expr =
             ASTFactory.newParenthesizedExpression(ast, NodeCopier.copySubtree(ast, node));
         ASTUtil.setProperty(node, expr);
+      }
+    }
+
+    // Avoid lower precedence compiler warnings.
+    if (op == InfixExpression.Operator.AND || op == InfixExpression.Operator.OR) {
+      if (node.getLeftOperand() instanceof InfixExpression) {
+        Expression lhs = node.getLeftOperand();
+        ParenthesizedExpression expr =
+            ASTFactory.newParenthesizedExpression(ast, NodeCopier.copySubtree(ast, lhs));
+        ASTUtil.setProperty(lhs, expr);
+      }
+      if (node.getRightOperand() instanceof InfixExpression) {
+        Expression rhs = node.getRightOperand();
+        ParenthesizedExpression expr =
+            ASTFactory.newParenthesizedExpression(ast, NodeCopier.copySubtree(ast, rhs));
+        ASTUtil.setProperty(rhs, expr);
       }
     }
   }

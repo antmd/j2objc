@@ -44,6 +44,7 @@ import org.eclipse.jdt.core.dom.IExtendedModifier;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
+import org.eclipse.jdt.core.dom.Javadoc;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.Name;
@@ -120,6 +121,7 @@ public class ObjectiveCHeaderGenerator extends ObjectiveCSourceFileGenerator {
 
     printConstantDefines(node);
 
+    printDocComment(node.getJavadoc());
     if (needsDeprecatedAttribute(ASTUtil.getModifiers(node))) {
       println(DEPRECATED_ATTRIBUTE);
     }
@@ -360,8 +362,7 @@ public class ObjectiveCHeaderGenerator extends ObjectiveCSourceFileGenerator {
     }
     String result = super.methodDeclaration(m);
     String methodName = NameTable.getName(Types.getMethodBinding(m));
-    if (methodName.startsWith("new") || methodName.startsWith("copy")
-        || methodName.startsWith("alloc") || methodName.startsWith("init")) {
+    if (needsObjcMethodFamilyNoneAttribute(methodName)) {
          // Getting around a clang warning.
          // clang assumes that methods with names starting with new, alloc or copy
          // return objects of the same type as the receiving class, regardless of
@@ -380,6 +381,11 @@ public class ObjectiveCHeaderGenerator extends ObjectiveCSourceFileGenerator {
     return result + ";\n";
   }
 
+  private boolean needsObjcMethodFamilyNoneAttribute(String name) {
+    return name.startsWith("new") || name.startsWith("copy") || name.startsWith("alloc")
+        || name.startsWith("init") || name.startsWith("mutableCopy");
+  }
+
   @Override
   protected String mappedMethodDeclaration(MethodDeclaration method, IOSMethod mappedMethod) {
     return super.mappedMethodDeclaration(method, mappedMethod) + ";\n";
@@ -393,6 +399,12 @@ public class ObjectiveCHeaderGenerator extends ObjectiveCSourceFileGenerator {
   @Override
   protected void printStaticConstructorDeclaration(MethodDeclaration m) {
     // Don't do anything.
+  }
+
+  @Override
+  protected void printMethod(MethodDeclaration m) {
+    printDocComment(m.getJavadoc());
+    super.printMethod(m);
   }
 
   @Override
@@ -466,6 +478,7 @@ public class ObjectiveCHeaderGenerator extends ObjectiveCSourceFileGenerator {
           println(" @public");
           first = false;
         }
+        printDocComment(field.getJavadoc());
         printIndent();
         if (BindingUtil.isWeakReference(Types.getVariableBinding(var))) {
           // We must add this even without -use-arc because the header may be
@@ -556,8 +569,7 @@ public class ObjectiveCHeaderGenerator extends ObjectiveCSourceFileGenerator {
       String propertyName = NameTable.getName(member.getName());
       println(String.format("%s%s%s;", typeString, typeString.endsWith("*") ? "" : " ",
           propertyName));
-      if (propertyName.startsWith("new") || propertyName.startsWith("copy")
-          || propertyName.startsWith("alloc") || propertyName.startsWith("init")) {
+      if (needsObjcMethodFamilyNoneAttribute(propertyName)) {
         println(String.format("- (%s)%s OBJC_METHOD_FAMILY_NONE;", typeString, propertyName));
       }
       nPrinted++;
@@ -620,10 +632,10 @@ public class ObjectiveCHeaderGenerator extends ObjectiveCSourceFileGenerator {
             println("-INFINITY");
           } else if (f == Float.MAX_VALUE) {
             println("__FLT_MAX__");
-          } else if (f == Float.MIN_VALUE) {
+          } else if (f == Float.MIN_NORMAL) {
             println("__FLT_MIN__");
           } else {
-            println(value.toString());
+            println(value.toString() + "f");
           }
         } else if (value instanceof Double) {
           double d = ((Double) value).doubleValue();
@@ -636,7 +648,7 @@ public class ObjectiveCHeaderGenerator extends ObjectiveCSourceFileGenerator {
             println("-INFINITY");
           } else if (d == Double.MAX_VALUE) {
             println("__DBL_MAX__");
-          } else if (d == Double.MIN_VALUE) {
+          } else if (d == Double.MIN_NORMAL) {
             println("__DBL_MIN__");
           } else {
             println(value.toString());

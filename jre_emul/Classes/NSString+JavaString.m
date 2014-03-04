@@ -434,6 +434,9 @@ destinationBegin:(int)destinationBegin {
 - (NSString *)replaceFirst:(NSString *)regex
            withReplacement:(NSString *)replacement {
   NSRange range = [self rangeOfString:regex options:NSRegularExpressionSearch];
+  if (range.location == NSNotFound) {
+    return self;
+  }
   return [self stringByReplacingOccurrencesOfString:regex
                                          withString:replacement
                                             options:NSRegularExpressionSearch
@@ -850,7 +853,7 @@ NSStringEncoding parseCharsetName(NSString *charset) {
     @throw makeException([JavaLangNullPointerException class]);
   }
   if ([sequence sequenceLength] == 0) {
-    return 0;
+    return YES;
   }
   NSRange range = [self rangeOfString:[sequence description]];
   return range.location != NSNotFound;
@@ -1023,4 +1026,7 @@ static id<JavaUtilComparator> CaseInsensitiveComparator_CASE_INSENSITIVE_ORDER_;
   return &_JavaLangString_CaseInsensitiveComparator;
 }
 
+@end
+
+@implementation JreStringCategoryDummy
 @end

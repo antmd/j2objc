@@ -378,9 +378,12 @@ public class RewriterTest extends GenerationTest {
   public void testEnhancedForWithBoxedType() throws IOException {
     String source = "import java.util.List;" +
         "public class A { " +
-        "List<Character> chars; " +
-        "void test() { for (char c : chars) {} } }";
+        "Character[] charArray; " +
+        "List<Character> charList; " +
+        "void test() { for (char c : charArray) {} for (char c : charList) {} } }";
     String translation = translateSourceFile(source, "A", "A.m");
+    assertTranslation(translation,
+        "unichar c = [((JavaLangCharacter *) nil_chk((*b__++))) charValue];");
     assertTranslation(translation,
         "unichar c = [((JavaLangCharacter *) nil_chk(boxed__)) charValue];");
   }
@@ -431,7 +434,7 @@ public class RewriterTest extends GenerationTest {
 
   public void testAdditionWithinStringConcatenation() throws IOException {
     String translation = translateSourceFile(
-        "class Test { void test() { String s = 1 + 2.3f + \"foo\"; } }", "Test", "test.m");
+        "class Test { void test() { String s = 1 + 2.3f + \"foo\"; } }", "Test", "Test.m");
     assertTranslation(translation,
         "NSString *s = [NSString stringWithFormat:@\"%ffoo\", 1 + 2.3f]");
   }
@@ -559,7 +562,8 @@ public class RewriterTest extends GenerationTest {
         "return (object == this) || (object instanceof Test) && (i == ((Test) object).i); } }",
         "Test", "Test.m");
     assertTranslatedLines(translation, "(object == self) || " +
-        "(([object isKindOfClass:[Test class]]) && (i_ == ((Test *) nil_chk(object))->i_));");
+        "(([object isKindOfClass:[Test class]]) && (i_ == ((Test *) nil_chk(((Test *) " +
+        "check_class_cast(object, [Test class]))))->i_));");
   }
 
   // Objective-C requires that bit-wise and tests be surrounded by parens when mixed with or tests.
@@ -577,8 +581,23 @@ public class RewriterTest extends GenerationTest {
         "Test", "Test.m");
     assertTranslation(translation, "return a & b;");
     assertTranslation(translation, "return c | d;");
-    assertTranslatedLines(translation, "return (e & f) | (g & h) | i;");
+    assertTranslatedLines(translation, "return ((e & f) | (g & h)) | i;");
     assertTranslatedLines(translation, "return j | k | (l & m & n);");
+  }
+
+  // C compiler requires that tests using & or | as boolean test have parentheses around
+  // infix operands.
+  public void testLowerPrecedence() throws IOException {
+    String translation = translateSourceFile(
+        "class Test { " +
+        "boolean test1(int o, int p, int q) {" +
+        "  return o < 0 | (o == 0 & p > q); } " +
+        "boolean test2(int r) {" +
+        "  return r < 0 & !isPowerOfTwo(r); } " +
+        "boolean isPowerOfTwo(int i) { return false; }}",
+        "Test", "Test.m");
+    assertTranslatedLines(translation, "return (o < 0) | ((o == 0) & (p > q));");
+    assertTranslatedLines(translation, "return (r < 0) & ![self isPowerOfTwoWithInt:r];");
   }
 
   // Verify anonymous class for an interface that implements equals() has
