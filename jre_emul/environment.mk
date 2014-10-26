@@ -94,7 +94,7 @@ TEST_SRC = $(subst $(eval) ,:,$(TEST_SRC_ROOTS))
 vpath %.java $(JRE_SRC):$(TEST_SRC):$(STUBS_DIR)
 
 # Clang warnings
-WARNINGS := $(WARNINGS) -Wall -Werror
+WARNINGS := $(WARNINGS) -Wall -Werror -Wno-error=unused-function
 
 # Require C11 compilation to support Java volatile translation.
 OBJCFLAGS := -std=c11

@@ -146,6 +146,12 @@ JRE_INTERFACES = \
 	java/util/logging/Filter.h \
 	java/util/logging/LoggingMXBean.h \
 	org/apache/harmony/security/fortress/SecurityAccess.h \
+	org/w3c/dom/DOMImplementation.java\
+	org/w3c/dom/Document.java\
+	org/w3c/dom/NamedNodeMap.java\
+	org/w3c/dom/Node.java\
+	org/w3c/dom/NodeList.java\
+	org/w3c/dom/UserDataHandler.java\
 	org/w3c/dom/TypeInfo.h \
 	org/w3c/dom/ls/LSInput.h \
 	org/w3c/dom/ls/LSResourceResolver.h \
@@ -675,6 +681,7 @@ JAVA_SOURCES = \
 	javax/xml/parsers/ParserConfigurationException.java \
 	javax/xml/parsers/SAXParser.java \
 	javax/xml/parsers/SAXParserFactory.java \
+	javax/xml/parsers/DocumentBuilder.java \
 	javax/xml/transform/Result.java \
 	javax/xml/transform/Source.java \
 	javax/xml/validation/Schema.java \
